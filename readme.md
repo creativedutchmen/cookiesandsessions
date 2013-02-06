@@ -1,4 +1,4 @@
-Session rewrite
+Cookies and Session - a rewrite for Symphony
 ================
 
 ### What's this? ###
