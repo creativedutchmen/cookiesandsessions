@@ -8,40 +8,40 @@ namespace Symphony\Core;
  **/
 class Cookie
 {
-	/**
-	 * Expiration time, in seconds.
-	 * 
-	 * Note that in the __toString method we include both Max-Age and Expires, but Expires has been deprecated in HTML1.1
-	 * The only reason for still including Expires is that IE[1-7-8] do not support the Expires flag.
-	 * For now, Max-Age is the preferred way of setting the age. When IE chooses to support it, we can remove the Expires flag.
-	 *
-	 * @var int
-	 **/
-	public $max_age = 1209600;
-	
-	/**
-	 * Domain, defaults to the Symphony host
-	 * @var string
-	 **/
-	public $domain = HTTP_HOST;
-	
-	/**
-	 * Path, defaults to the Symphony path.
-	 * @var string
-	 **/
-	public $path = '/';
-	
-	/**
-	 * A secure cookie has the secure attribute enabled and is only used via HTTPS, ensuring that the cookie is always encrypted when transmitting from client to server. This makes the cookie less likely to be exposed to cookie theft via eavesdropping.
-	 * @var boolean
-	 **/
-	public $secure = __SECURE__;
-	
-	/**
-	 * On a supported browser, an HttpOnly session cookie will be used only when transmitting HTTP (or HTTPS) requests, thus restricting access from other, non-HTTP APIs (such as JavaScript). This restriction mitigates but does not eliminate the threat of session cookie theft via cross-site scripting (XSS). This feature applies only to session-management cookies, and not other browser cookies.
-	 * @var boolean
-	 **/
-	public $http_only = false;
+    /**
+     * Expiration time, in seconds.
+     * 
+     * Note that in the __toString method we include both Max-Age and Expires, but Expires has been deprecated in HTML1.1
+     * The only reason for still including Expires is that IE[1-7-8] do not support the Expires flag.
+     * For now, Max-Age is the preferred way of setting the age. When IE chooses to support it, we can remove the Expires flag.
+     *
+     * @var int
+     **/
+    public $max_age = 1209600;
+
+    /**
+     * Domain, defaults to the Symphony host
+     * @var string
+     **/
+    public $domain = HTTP_HOST;
+
+    /**
+     * Path, defaults to the Symphony path.
+     * @var string
+     **/
+    public $path = '/';
+
+    /**
+     * A secure cookie has the secure attribute enabled and is only used via HTTPS, ensuring that the cookie is always encrypted when transmitting from client to server. This makes the cookie less likely to be exposed to cookie theft via eavesdropping.
+     * @var boolean
+     **/
+    public $secure = __SECURE__;
+
+    /**
+     * On a supported browser, an HttpOnly session cookie will be used only when transmitting HTTP (or HTTPS) requests, thus restricting access from other, non-HTTP APIs (such as JavaScript). This restriction mitigates but does not eliminate the threat of session cookie theft via cross-site scripting (XSS). This feature applies only to session-management cookies, and not other browser cookies.
+     * @var boolean
+     **/
+    public $http_only = false;
 
     /**
      * The Cookie Index. This is used to differentiate extensions from the core, and extensions from each other.
@@ -52,55 +52,55 @@ class Cookie
      **/
     public $index = 'Symphony';
 
-	/**
-	 * The cookie key. Duplicate keys will be overwritten.
-	 *
-	 * @var string
-	 **/
-	protected $name;
+    /**
+     * The cookie key. Duplicate keys will be overwritten.
+     *
+     * @var string
+     **/
+    protected $name;
 
-	/**
-	 * undocumented class variable
-	 *
-	 * @var string
-	 **/
-	protected $value;
+    /**
+     * undocumented class variable
+     *
+     * @var string
+     **/
+    protected $value;
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param  array
-	 * @return void
-	 **/
-	public function __construct($name, $value = null, array $options = array())
-	{
-		$this->__set('name', $name);
-		$this->__set('value', $value);
-		foreach ($options as $key => $param) {
-			$this->__set($key, $param);
-		}
-	}
+    /**
+     * Constructor.
+     * 
+     * @param  array
+     * @return void
+     **/
+    public function __construct($name, $value = null, array $options = array())
+    {
+    	$this->__set('name', $name);
+    	$this->__set('value', $value);
+    	foreach ($options as $key => $param) {
+    		$this->__set($key, $param);
+    	}
+    }
 
-	/**
-	 * Converts the Cookie object to a header string.
-	 *
-	 * @return string
-	 **/
-	public function getHeaderString()
-	{
-		return sprintf(
-			'Set-Cookie: %s[%s]=%s; Expires=%s; Max-Age=%d; Domain=%s; Path=%s%s%s',
-			$this->index,
-			$this->name,
-			$this->value,
-			gmdate('D, d M Y H:i:s T', time() + $this->max_age),
-			$this->max_age,
-			$this->domain,
-			$this->path,
-			($this->secure)?'; Secure':'',
-			($this->http_only)?'; HttpOnly':''
-		);
-	}
+    /**
+     * Converts the Cookie object to a header string.
+     *
+     * @return string
+     **/
+    public function getHeaderString()
+    {
+    	return sprintf(
+    		'Set-Cookie: %s[%s]=%s; Expires=%s; Max-Age=%d; Domain=%s; Path=%s%s%s',
+    		$this->index,
+    		$this->name,
+    		$this->value,
+    		gmdate('D, d M Y H:i:s T', time() + $this->max_age),
+    		$this->max_age,
+    		$this->domain,
+    		$this->path,
+    		($this->secure)?'; Secure':'',
+    		($this->http_only)?'; HttpOnly':''
+    	);
+    }
 
     /**
      * Getter
