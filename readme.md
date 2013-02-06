@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/creativedutchmen/cookiesandsessions.png)](https://travis-ci.org/creativedutchmen/cookiesandsessions)
+
 Cookies and Session - a rewrite for Symphony
 ================
 
