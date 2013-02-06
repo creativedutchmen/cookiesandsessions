@@ -77,19 +77,7 @@ class Cookie
 		$this->__set('name', $name);
 		$this->__set('value', $value);
 		foreach ($options as $key => $param) {
-			switch ($key) {
-				case 'max_age':
-				case 'domain':
-				case 'path':
-				case 'secure':
-				case 'index':
-				case 'http_only':
-					$this->$key = $param;
-					break;
-				default:
-					throw new \Exception(sprintf('Invalid Parameter: %s', $key));
-					break;
-			}
+			$this->__set($key, $param);
 		}
 	}
 

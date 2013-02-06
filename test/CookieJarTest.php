@@ -64,6 +64,9 @@ class CookieJarTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $cookie->name);
         $this->assertEquals(null, $cookie->value);
 
+        $cookie = $jar->find('DoesNot', 'Exist');
+        $this->assertEmpty($cookie);
+
         return $jar;
     }
 
@@ -115,6 +118,9 @@ class CookieJarTest extends PHPUnit_Framework_TestCase
         $jar->add($cookie);
         $_COOKIE = $jar;
         $this->assertEquals($cookie, $_COOKIE['Symphony']['websites']);
+        $this->assertEmpty($_COOKIE['DoesNot']['Exist']);
+        $this->assertTrue(isset($_COOKIE['Symphony']));
+        $this->assertFalse(isset($_COOKIE['DoesNot']));
     }
 
     public function testJarAsMultiDimensionalCookieArray()

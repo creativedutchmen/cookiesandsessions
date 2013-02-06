@@ -82,63 +82,36 @@ class CookieTest extends PHPUnit_Framework_TestCase
         $this->assertContains('Secure', $header_string);
 	}
 
-    public function testInHeaderStringSecureOnlySetWhenTrue()
-    {
-        $secure_cookie = new Cookie('not', 'important', array(
-            'secure' => true
-        ));
-        $this->assertContains('Secure', $secure_cookie->getHeaderString());
-        $insecure_cookie = new Cookie('not', 'important', array(
-            'secure' => false
-        ));
-        $this->assertNotContains('Secure', $insecure_cookie->getHeaderString());
-    }
-
-    public function testInHeaderStringHttpOnlyOnlySetWhenTrue()
-    {
-        $http_only_cookie = new Cookie('not', 'important', array(
-            'http_only' => true
-        ));
-        $this->assertContains('HttpOnly', $http_only_cookie->getHeaderString());
-        $non_http_only_cookie = new Cookie('not', 'important', array(
-            'http_only' => false
-        ));
-        $this->assertNotContains('HttpOnly', $non_http_only_cookie->getHeaderString());
-    }
-
     /**
      * @dataProvider invalidCharacters
      */
-    public function testCreatingCookieWithInvalidCharactersInNameThrowsException($invalid_name)
+    public function testCreatingCookieWithInvalidCharactersThrowsException($invalid_name)
     {
         $this->setExpectedException('Exception');
         $cookie = new Cookie($invalid_name, 'good_value');
+        $this->setExpectedException('Exception');
+        $cookie = new Cookie('good_name', $invalid_characters);
+        
+        $cookie = new Cookie('good_name', 'good_value');
+        $this->setExpectedException('Exception');
+        $cookie->name = $invalid_characters;
     }
 
-    /**
-     * @dataProvider invalidCharacters
-     */
-    public function testCreatingCookieWithInvalidCharactersInValueThrowsException($invalid_value)
+    public function testSettingUndefinedParametersThrowsException()
     {
+        $cookie = new Cookie('good','value');
         $this->setExpectedException('Exception');
-        $cookie = new Cookie('good_name', $invalid_value);
-    }
-
-    /**
-     * @dataProvider invalidCharacters
-     */
-    public function testSettingInvalidCookieNameThrowsException($invalid_name)
-    {
-        $this->setExpectedException('Exception');
-        $cookie = new Cookie('valid_name', 'good_value');
-        $cookie->name = $invalid_name;
-    }
-
-    public function testSettingsInexistingPropertyThrowsException()
-    {
-        $this->setExpectedException('Exception');
-        $cookie = new Cookie('name', 'value');
         $cookie->invalidProperty = 'test';
+        
+        $this->setExpectedException('Exception');
+        $cookie = new Cookie('good','value',array('bogus'=>'value'));
+    }
+
+    public function testGettingUndefinedParametersThrowsException()
+    {
+        $cookie = new Cookie('good','value');
+        $this->setExpectedException('Exception');
+        $error = $cookie->invalidProperty;
     }
 
     public function testCastingCookieToStringReturnsValue()
