@@ -36,6 +36,16 @@ class CookieJarTest extends PHPUnit_Framework_TestCase
         $jar->add($cookie);
         $this->assertEquals(2, $jar->getCount());
 
+        $cookie = new Cookie('dog');
+        $cookie->index = 'pets';
+        $jar->add($cookie);
+        $this->assertEquals(3, $jar->getCount());
+
+        $cookie = new Cookie('cat');
+        $cookie->index = 'pets';
+        $jar->add($cookie);
+        $this->assertEquals(4, $jar->getCount());
+
         return $jar;
     }
 
@@ -44,12 +54,12 @@ class CookieJarTest extends PHPUnit_Framework_TestCase
      */
     public function testFindCookie(CookieJar $jar)
     {
-        $cookie = $jar->find('foo');
+        $cookie = $jar->find('Symphony', 'foo');
         $this->assertInstanceOf('\Symphony\Core\Cookie', $cookie);
         $this->assertEquals('foo', $cookie->name);
         $this->assertEquals(null, $cookie->value);
 
-        $cookie = $jar->find('bar');
+        $cookie = $jar->find('Symphony', 'bar');
         $this->assertInstanceOf('\Symphony\Core\Cookie', $cookie);
         $this->assertEquals('bar', $cookie->name);
         $this->assertEquals(null, $cookie->value);
@@ -81,23 +91,41 @@ class CookieJarTest extends PHPUnit_Framework_TestCase
         return $jar;
     }
 
+    /**
+     * @depends testInitiallyEmpty
+     */
+    public function testNewCookieNameValueAndOptions(CookieJar $jar)
+    {
+        $options = array(
+			'max_age'       => 60,
+			'domain'        => 'symphony-cms.com',
+			'path'          => '/',
+			'secure'        => true,
+			'http_only'     => true,
+			'index'         => 'Cookie'
+		);
+        $cookie = $jar->create('foo', 'bar', $options);
+        $this->checkCookieValues($cookie, $options);
+    }
+
     public function testJarAsSimpleCookieArray()
     {
         $jar = new CookieJar();
-        $cookie = new Cookie('symphony', 'rocks');
+        $cookie = new Cookie('websites', 'rock');
         $jar->add($cookie);
         $_COOKIE = $jar;
-        $this->assertEquals($cookie, $_COOKIE['symphony']);
+        $this->assertEquals($cookie, $_COOKIE['Symphony']['websites']);
     }
 
     public function testJarAsMultiDimensionalCookieArray()
     {
         $jar = new CookieJar();
-        $set_cookie = new Cookie('symphony[websites]', 'rock');
+        $set_cookie = new Cookie('websites', 'rock_less');
+        $set_cookie->index = 'Other';
         $jar->add($set_cookie);
 
         $_COOKIE = $jar;
-        $get_cookie = $_COOKIE['symphony']['websites'];
+        $get_cookie = $_COOKIE['Other']['websites'];
 
         $this->assertInstanceOf('\Symphony\Core\Cookie', $get_cookie);
         $this->assertEquals('websites', $get_cookie->name);
@@ -125,5 +153,15 @@ class CookieJarTest extends PHPUnit_Framework_TestCase
 
         $this->setExpectedException('Exception');
         unset($_COOKIE['symphony']);
+    }
+
+    public function checkCookieValues($cookie, $values)
+    {
+        $this->assertEquals($values['max_age'], $cookie->max_age);
+		$this->assertEquals($values['domain'], $cookie->domain);
+		$this->assertEquals($values['path'], $cookie->path);
+		$this->assertEquals($values['secure'], $cookie->secure);
+		$this->assertEquals($values['http_only'], $cookie->http_only);
+		$this->assertEquals($values['index'], $cookie->index);
     }
 }

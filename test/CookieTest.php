@@ -11,7 +11,8 @@ class CookieTest extends PHPUnit_Framework_TestCase
 		'domain'        => HTTP_HOST,
 		'path'          => '/',
 		'secure'        => false,
-		'http_only'     => __SECURE__
+		'http_only'     => __SECURE__,
+		'index'         => 'Symphony'
 	);
     /**
      * @dataProvider validNamesAndValues
@@ -36,7 +37,8 @@ class CookieTest extends PHPUnit_Framework_TestCase
 			'domain'        => 'symphony-cms.com',
 			'path'          => '/',
 			'secure'        => true,
-			'http_only'     => true
+			'http_only'     => true,
+			'index'         => 'Cookie'
 		);
 		$cookie = new Cookie('name', 'value', $values);
 		$this->checkCookieValues($cookie, $values);
@@ -49,7 +51,7 @@ class CookieTest extends PHPUnit_Framework_TestCase
 		$cookie = new Cookie($name, $value);
 		$header_string = $cookie->getHeaderString();
         $this->assertContains('Set-Cookie', $header_string);
-        $this->assertContains(sprintf('%s=%s', $name, $value), $header_string);
+        $this->assertContains(sprintf('%s[%s]=%s', $this->defaults['index'], $name, $value), $header_string);
         $this->assertContains(sprintf('Domain=%s', $this->defaults['domain']), $header_string);
         $this->assertContains(sprintf('Path=%s', $this->defaults['path']), $header_string);
         $this->assertContains(sprintf('Max-Age=%s', $this->defaults['max_age']), $header_string);
@@ -66,12 +68,13 @@ class CookieTest extends PHPUnit_Framework_TestCase
 			'domain'        => 'symphony-cms.com',
 			'path'          => '/',
 			'secure'        => true,
-			'http_only'     => true
+			'http_only'     => true,
+			'index'         => 'Cookie'
 		);
 		$cookie = new Cookie($name, $value, $values);
 		$header_string = $cookie->getHeaderString();
         $this->assertContains('Set-Cookie', $header_string);
-        $this->assertContains(sprintf('%s=%s', $name, $value), $header_string);
+        $this->assertContains(sprintf('%s[%s]=%s', $values['index'], $name, $value), $header_string);
         $this->assertContains(sprintf('Domain=%s', $values['domain']), $header_string);
         $this->assertContains(sprintf('Path=%s', $values['path']), $header_string);
         $this->assertContains(sprintf('Max-Age=%s', $values['max_age']), $header_string);
@@ -177,5 +180,6 @@ class CookieTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($values['path'], $cookie->path);
 		$this->assertEquals($values['secure'], $cookie->secure);
 		$this->assertEquals($values['http_only'], $cookie->http_only);
+		$this->assertEquals($values['index'], $cookie->index);
     }
 }

@@ -43,6 +43,15 @@ class Cookie
 	 **/
 	public $http_only = false;
 
+    /**
+     * The Cookie Index. This is used to differentiate extensions from the core, and extensions from each other.
+     * It allows developers to use "normal names" in their extension, as long as they pick a unique index.
+     * Much like namespaces, if you will.
+     *
+     * @var string
+     **/
+    public $index = 'Symphony';
+
 	/**
 	 * The cookie key. Duplicate keys will be overwritten.
 	 *
@@ -73,6 +82,7 @@ class Cookie
 				case 'domain':
 				case 'path':
 				case 'secure':
+				case 'index':
 				case 'http_only':
 					$this->$key = $param;
 					break;
@@ -91,7 +101,8 @@ class Cookie
 	public function getHeaderString()
 	{
 		return sprintf(
-			'Set-Cookie: %s=%s; Expires=%s; Max-Age=%d; Domain=%s; Path=%s%s%s',
+			'Set-Cookie: %s[%s]=%s; Expires=%s; Max-Age=%d; Domain=%s; Path=%s%s%s',
+			$this->index,
 			$this->name,
 			$this->value,
 			gmdate('D, d M Y H:i:s T', time() + $this->max_age),

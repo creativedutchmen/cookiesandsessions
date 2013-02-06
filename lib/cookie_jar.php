@@ -16,10 +16,10 @@ class CookieJar implements \ArrayAccess
         }
     }
 
-    public function find($name)
+    public function find($index, $name)
     {
-        if (isset($this->cookies[$name])) {
-            return $this->cookies[$name];
+        if (isset($this->cookies[$index][$name])) {
+            return $this->cookies[$index][$name];
         }
         else {
             return null;
@@ -28,19 +28,22 @@ class CookieJar implements \ArrayAccess
 
     public function add(Cookie $cookie)
     {
-        $this->cookies[$cookie->name] = $cookie;
+        $this->cookies[$cookie->index][$cookie->name] = $cookie;
     }
 
     public function getCount()
     {
-        return count($this->cookies);
+        return count($this->cookies, 1) - count($this->cookies, 0);
     }
 
-    public function create($name, $value = null)
+    public function create($name, $value = null, array $options = array())
     {
         $obj = clone $this->cookie_obj;
         $obj->name = $name;
         $obj->value = $value;
+        foreach ($options as $option => $value) {
+            $obj->$option = $value;
+        }
         return $obj;
     }
 
@@ -49,27 +52,14 @@ class CookieJar implements \ArrayAccess
      *  These have the sole purpose of making accessing cookies as simple as usual.
      **/
 
-    public function offsetExists($name) {
-        return isset($this->cookies[$name]);
+    public function offsetExists($offset) {
+        return isset($this->cookies[$offset]);
     }
 
-    public function offsetGet($name) {
-        if (isset($this->cookies[$name])) {
-            return $this->cookies[$name];
-        }
-        $return_obj = clone $this;
-        foreach ($this->cookies as $cookie) {
-            if (preg_match(sprintf('/^%s\[(.*)\]$/', $name), $cookie->name, $name) === 1) {
-                $return_cookie = clone $cookie;
-                $return_cookie->name = $name[1];
-                $return_obj->add($return_cookie);
-            }
-        }
-        
-        if ($return_obj->getCount() > 0) {
-            return $return_obj;
-        }
-        
+    public function offsetGet($offset) {
+        if (isset($this->cookies[$offset])) {
+            return $this->cookies[$offset];
+        }        
         return null;
     }
 
