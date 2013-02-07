@@ -12,7 +12,7 @@ class CookieJar implements \ArrayAccess
             $this->cookie_obj = $cookie_obj;
         }
         else {
-            $this->cookie_obj = new Cookie('foo');
+            $this->cookie_obj = new Cookie('foo', 'bar');
         }
     }
 
@@ -28,7 +28,7 @@ class CookieJar implements \ArrayAccess
 
     public function add(Cookie $cookie)
     {
-        $this->cookies[$cookie->index][$cookie->name] = $cookie;
+        $this->cookies[$cookie->get('index')][$cookie->get('name')] = $cookie;
     }
 
     public function getCount()
@@ -36,13 +36,14 @@ class CookieJar implements \ArrayAccess
         return count($this->cookies, 1) - count($this->cookies, 0);
     }
 
-    public function create($name, $value = null, array $options = array())
+    public function create($index, $name, $value = null, array $options = array())
     {
         $obj = clone $this->cookie_obj;
-        $obj->name = $name;
-        $obj->value = $value;
+        $obj->set('index', $index);
+        $obj->set('name', $name);
+        $obj->set('value', $value);
         foreach ($options as $option => $value) {
-            $obj->$option = $value;
+            $obj->set($option, $value);
         }
         return $obj;
     }

@@ -17,31 +17,31 @@ class Cookie
      *
      * @var int
      **/
-    public $max_age = 1209600;
+    protected $max_age = 1209600;
 
     /**
      * Domain, defaults to the Symphony host
      * @var string
      **/
-    public $domain = HTTP_HOST;
+    protected $domain = HTTP_HOST;
 
     /**
      * Path, defaults to the Symphony path.
      * @var string
      **/
-    public $path = '/';
+    protected $path = '/';
 
     /**
      * A secure cookie has the secure attribute enabled and is only used via HTTPS, ensuring that the cookie is always encrypted when transmitting from client to server. This makes the cookie less likely to be exposed to cookie theft via eavesdropping.
      * @var boolean
      **/
-    public $secure = __SECURE__;
+    protected $secure = __SECURE__;
 
     /**
      * On a supported browser, an HttpOnly session cookie will be used only when transmitting HTTP (or HTTPS) requests, thus restricting access from other, non-HTTP APIs (such as JavaScript). This restriction mitigates but does not eliminate the threat of session cookie theft via cross-site scripting (XSS). This feature applies only to session-management cookies, and not other browser cookies.
      * @var boolean
      **/
-    public $http_only = false;
+    protected $http_only = false;
 
     /**
      * The Cookie Index. This is used to differentiate extensions from the core, and extensions from each other.
@@ -50,7 +50,7 @@ class Cookie
      *
      * @var string
      **/
-    public $index = 'Symphony';
+    protected $index = 'Symphony';
 
     /**
      * The cookie key. Duplicate keys will be overwritten.
@@ -72,13 +72,78 @@ class Cookie
      * @param  array
      * @return void
      **/
-    public function __construct($name, $value = null, array $options = array())
+    public function __construct($index, $name, $value = null, $properties = array())
     {
-    	$this->__set('name', $name);
-    	$this->__set('value', $value);
-    	foreach ($options as $key => $param) {
-    		$this->__set($key, $param);
+        $this->set('index', $index);
+    	$this->set('name', $name);
+    	$this->set('value', $value);
+    	foreach ($properties as $property => $value) {
+    	    $this->set($property, $value);
     	}
+    }
+
+    /**
+     * Get method for class attributes. 
+     *
+     * @return mixed
+     **/
+    public function get($name)
+    {
+        if (property_exists($this, $name)) {
+            return $this->$name;
+        }
+        return null;
+    }
+
+    /**
+     * undocumented function
+     *
+     * @return void
+     * @author Huib Keemink
+     **/
+    protected function setMaxAge($max_age)
+    {
+        if (!is_int($max_age)) {
+            throw new \Exception(sprintf('Max Age must be a number, given %s', gettype($max_age)));
+        }
+        $this->max_age = $max_age;
+    }
+    
+    /**
+     * Get method for class attributes. 
+     *
+     * @return mixed
+     **/
+    public function set($name, $value)
+    {
+        $this->validateString($value);
+        $set_method = sprintf('set%s', str_replace(' ','', ucwords(str_replace('_', ' ', $name))));
+        if (method_exists($this, $set_method)) {
+            call_user_func_array(array($this, $set_method), array($value));
+            return;
+        }
+        if (property_exists($this, $name)) {
+            $this->$name = $value;
+            return;
+        }
+        throw new \Exception(sprintf('Attribute %s can not be found', $name));
+    }
+
+    protected function validateString($string)
+    {
+        if (preg_match('/\s/', $string) === 1) {
+            throw new \Exception('Whitespaces are not allowed in a cookie');
+        }
+        
+        $invalid_characters = array(
+            '=',
+            ';'
+        );
+        foreach ($invalid_characters as $character) {
+            if (strpos($string, $character) !== FALSE) {
+                throw new \Exception(sprintf('The character %s is not allowed in a cookie', $character));
+            }
+        }
     }
 
     /**
@@ -100,46 +165,6 @@ class Cookie
     		($this->secure)?'; Secure':'',
     		($this->http_only)?'; HttpOnly':''
     	);
-    }
-
-    /**
-     * Getter
-     *
-     * @return mixed
-     * @throws Exception
-     **/
-    public function __get($name) {
-        if (property_exists($this, $name)) {
-            return $this->$name;
-        }
-        throw new \Exception(sprintf('%s does not have the %s property', __CLASS__, $name));
-    }
-
-    /**
-     * Setter
-     *
-     * @return mixed
-     * @throws Exception
-     **/
-    public function __set($name, $value){
-        if (0 !== preg_match('/\s/',$value)) {
-            throw new \Exception('Invalid character, cookies may not contain any whitespace');
-        }
-        $invalid_characters = array(
-          ';',
-          ',',
-          '='  
-        );
-        foreach ($invalid_characters as $char) {
-            if (strstr($value, $char)) {
-                throw new \Exception(sprintf('Invalid character, cookies may not contain %s', $char));
-            }
-        }
-        if (property_exists($this, $name)) {
-            $this->$name = $value;
-            return $this;
-        }
-        throw new \Exception(sprintf('%s does not have the %s property', __CLASS__, $name));
     }
 
     /**
